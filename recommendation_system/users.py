@@ -87,8 +87,11 @@ class Users:
         Returns:
             object: A user or None if no user is found.
         """
+        if name:
+            name = name.lower()
+
         for user in self._users:
-            if user.name == name or user.identifier == identifier:
+            if user.name.lower() == name or user.identifier == identifier:
                 return user
 
         raise NoSuchUser("No user for name:{}, id:{}".format(name, identifier))
