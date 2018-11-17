@@ -50,6 +50,10 @@ class Users:
         user = self._find(name=name, identifier=identifier)
 
         for movie in self._movies:
+            # skip movies already seen by the target user
+            if user.has_seen(movie):
+                continue
+
             total = 0.0
             sim_sum = 0.0
             for other in self._users:

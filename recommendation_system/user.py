@@ -39,6 +39,22 @@ class User:
 
         raise NoSuchRating("No ratings for {}".format(movie))
 
+    def has_seen(self, movie: str) -> bool:
+        """
+        Check if the user has seen the specified movie.
+
+        Args:
+            movie: The movie to check.
+
+        Returns:
+            bool: True if the user has seen the movie, False otherwise.
+        """
+        try:
+            self.get_rating(movie)
+        except NoSuchRating:
+            return False
+        return True
+
     @property
     def name(self) -> str:
         return self._name
