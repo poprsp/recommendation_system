@@ -73,6 +73,15 @@ class Users:
         result.sort(key=lambda ws: ws.score, reverse=True)
         return result
 
+    def user_list(self) -> List[str]:
+        """
+        Retrieve a list of all known users.
+
+        Returns:
+            list: A list of users.
+        """
+        return [user.name for user in self._users]
+
     def _find(self, name: str=None, identifier: int=0) -> User:
         """
         Retrieve a user.

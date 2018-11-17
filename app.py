@@ -2,7 +2,7 @@
 
 import json
 import sys
-from typing import Dict
+from typing import Dict, List
 
 import flask
 import flask_restful
@@ -29,6 +29,15 @@ class WeightedScores(flask_restful.Resource):
 
 
 api.add_resource(WeightedScores, "/api/weighted-scores/<string:name>")
+
+
+class UserList(flask_restful.Resource):
+    @staticmethod
+    def get() -> List[str]:
+        return users.user_list()
+
+
+api.add_resource(UserList, "/api/user-list")
 
 
 @app.route("/", defaults={"filename": None})
