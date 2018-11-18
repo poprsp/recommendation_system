@@ -49,6 +49,15 @@ class UserList(flask_restful.Resource):
 api.add_resource(UserList, "/api/user-list")
 
 
+class MeasureList(flask_restful.Resource):
+    @staticmethod
+    def get() -> List[str]:
+        return users.measure_list()
+
+
+api.add_resource(MeasureList, "/api/measure-list")
+
+
 @app.route("/", defaults={"filename": None})
 @app.route("/<filename>")
 def ui(filename: str) -> flask.Response:

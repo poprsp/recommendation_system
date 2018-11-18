@@ -88,6 +88,15 @@ class Users:
         """
         return [user.name for user in self._users]
 
+    def measure_list(self) -> List[str]:
+        """
+        Retrieve a list of all available similarity measures.
+
+        Returns:
+            list: A list of similarity measures.
+        """
+        return [k for k, v in self._measures.items()]
+
     def _get_measure(self, measure: str) -> Callable[[User, User], float]:
         """
         Retrieve the function for the specified similarity measure.
