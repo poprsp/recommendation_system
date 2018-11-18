@@ -2,12 +2,12 @@
 
 import json
 import sys
-from typing import List
+from typing import Dict, List
 
 import flask
 import flask_restful
 
-from recommendation_system.users import Users, NoSuchUser, WeightedScore
+from recommendation_system.users import Users, NoSuchUser
 
 app = flask.Flask(__name__)
 api = flask_restful.Api(app)
@@ -16,15 +16,20 @@ users = Users(users="data/users.csv", ratings="data/ratings.csv")
 
 class WeightedScores(flask_restful.Resource):
     @staticmethod
-    def get(name: str) -> List[WeightedScore]:
+    def get(name: str) -> List[Dict[str, float]]:
+        result = []
         try:
-            scores = users.weighted_scores(name)
+            # we can't simply use the namedtuples from weighted_scores()
+            # because they're translated into lists in the JSON reply,
+            # so we create a dict for each item
+            for item in users.weighted_scores(name):
+                result.append({"movie": item.movie, "score": item.score})
         except NoSuchUser:
             response = json.dumps({
                 "message": "User {} does not exist".format(name)
             })
             flask.abort(flask.Response(response=response, status=400))
-        return scores
+        return result
 
 
 api.add_resource(WeightedScores, "/api/weighted-scores/<string:name>")
