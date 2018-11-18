@@ -2,6 +2,7 @@
 
 import collections
 import csv
+import math
 from typing import Any, Callable, List
 
 from .rating import Rating
@@ -22,7 +23,8 @@ class Users:
         self._users = self._parse(users, User, ["UserName", "UserID"])
 
         self._measures = {
-            "euclidean": self._euclidean
+            "euclidean": self._euclidean,
+            "pearson": self._pearson
         }
 
         self._movies = []  # type: List[str]
@@ -164,6 +166,42 @@ class Users:
 
         if n:
             return 1 / (1 + sim)
+        return 0.0
+
+    @staticmethod
+    def _pearson(a: User, b: User) -> float:
+        """
+        Calculate the pearson distance between two users.
+
+        Args:
+            a: The first user
+            b: The second user
+
+        Returns:
+            float: The distance.
+        """
+        a_sum = a_sum_sq = b_sum = b_sum_sq = p_sum = 0.0
+        n = 0
+
+        for a_r in a.ratings:
+            try:
+                b_r = b.get_rating(a_r.movie)
+                a_sum += a_r.rating
+                a_sum_sq += a_r.rating**2
+
+                b_sum += b_r
+                b_sum_sq += b_r**2
+
+                p_sum += a_r.rating * b_r
+                n += 1
+            except NoSuchRating:
+                pass
+
+        if n:
+            num = p_sum - (a_sum * b_sum / n)
+            den = math.sqrt(
+                (a_sum_sq - a_sum**2 / n) * (b_sum_sq - b_sum**2 / n))
+            return num / den
         return 0.0
 
     @staticmethod
