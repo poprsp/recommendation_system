@@ -6,14 +6,17 @@ function getUrl(endpoint) {
 
 function addFormListener() {
   document.getElementById("form").addEventListener("submit", e => {
+    const measureList = document.getElementById("measure-list");
+    const measure = measureList[measureList.selectedIndex].value;
+
     const userList = document.getElementById("user-list");
     const user = userList[userList.selectedIndex].value;
 
-    loadWeightedScores(user);
+    loadWeightedScores(measure, user);
   });
 }
 
-function loadWeightedScores(user) {
+function loadWeightedScores(measure, user) {
   const url = getUrl("weighted-scores");
   const result = document.getElementById("result");
 
@@ -22,7 +25,7 @@ function loadWeightedScores(user) {
     result.removeChild(result.children[1]);
   }
 
-  fetch(`${url}/${user}`)
+  fetch(`${url}/${measure}/${user}`)
     .then(res => {
       return res.json();
     })
@@ -48,22 +51,22 @@ function loadWeightedScores(user) {
     });
 }
 
-function loadUserList() {
-  const url = getUrl("user-list");
-  const userList = document.getElementById("user-list");
+function loadList(endpoint) {
+  const url = getUrl(endpoint);
+  const list = document.getElementById(endpoint);
 
   fetch(url)
     .then(res => {
       return res.json();
     })
     .then(json => {
-      for (const user of json) {
+      for (const elem of json) {
         const option = document.createElement("option");
 
-        const text = document.createTextNode(user);
+        const text = document.createTextNode(elem);
         option.appendChild(text);
 
-        userList.appendChild(option);
+        list.appendChild(option);
       }
     })
     .catch(err => {
@@ -73,7 +76,8 @@ function loadUserList() {
 
 function main() {
   addFormListener();
-  loadUserList();
+  loadList("measure-list");
+  loadList("user-list");
 }
 
 window.onload = main;
