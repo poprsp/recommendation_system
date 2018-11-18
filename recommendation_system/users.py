@@ -2,7 +2,7 @@
 
 import collections
 import csv
-from typing import Any, List
+from typing import Any, Callable, List
 
 from .rating import Rating
 from .user import NoSuchRating, User
@@ -21,6 +21,10 @@ class Users:
         """
         self._users = self._parse(users, User, ["UserName", "UserID"])
 
+        self._measures = {
+            "euclidean": self._euclidean
+        }
+
         self._movies = []  # type: List[str]
         for r in self._parse(ratings, Rating, ["UserID", "Movie", "Rating"]):
             self._find(identifier=r.identifier).add_rating(r)
@@ -31,17 +35,19 @@ class Users:
             if r.movie not in self._movies:
                 self._movies.append(r.movie)
 
-    def weighted_scores(self, name: str=None,
+    def weighted_scores(self, measure: str, name: str=None,
                         identifier: int=0) -> List[WeightedScore]:
         """
         Calculate the weighted score for every rated movie.
 
         Args:
+            measure: The similarity measure to use
             name: The target username
             identifier: The target user identifier
 
         Raises:
             NoSuchUser: If the user doesn't exist.
+            NoSuchMeasure: The similarity measure doesn't exist.
 
         Returns:
             list: A list of weighted scores sorted in descending order.
@@ -63,7 +69,7 @@ class Users:
 
                 try:
                     rating = other.get_rating(movie)
-                    sim = self._euclidean(user, other)
+                    sim = self._get_measure(measure)(user, other)
                     sim_sum += sim
                     total += sim * rating
                 except NoSuchRating:
@@ -81,6 +87,25 @@ class Users:
             list: A list of users.
         """
         return [user.name for user in self._users]
+
+    def _get_measure(self, measure: str) -> Callable[[User, User], float]:
+        """
+        Retrieve the function for the specified similarity measure.
+
+        Args:
+            measure: The desired similarity measure
+
+        Raises:
+            NoSuchMeasure: The similarity measure doesn't exist.
+
+        Returns:
+            func: A similarity measure function.
+        """
+        for k, v in self._measures.items():
+            if k == measure:
+                return v
+        raise NoSuchMeasure("{} is not a valid similarity measure"
+                            .format(measure))
 
     def _find(self, name: str=None, identifier: int=0) -> User:
         """
@@ -157,4 +182,8 @@ class Users:
 
 
 class NoSuchUser(Exception):
+    pass
+
+
+class NoSuchMeasure(Exception):
     pass
