@@ -67,7 +67,7 @@ def ui(filename: str) -> flask.Response:
 
 
 def main() -> int:
-    app.run(host="0.0.0.0")
+    app.run(host=len(sys.argv) > 1 and sys.argv[1] or "127.0.0.1")
     return 0
 
 
