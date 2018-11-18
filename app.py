@@ -63,7 +63,7 @@ api.add_resource(MeasureList, "/api/measure-list")
 def ui(filename: str) -> flask.Response:
     if not filename:
         filename = "index.html"
-    return flask.send_from_directory("ui", filename)
+    return flask.send_from_directory("ui", filename, cache_timeout=1)
 
 
 def main() -> int:
